@@ -8,5 +8,5 @@ There are three important files: for you to modify:
   Load your model and use it to make predictions on the input.
 - `Dockerfile` - Add the files needed to run your model (model weights, code, etc.)
 
-Once complete, you can run `build.sh` to build the container, and `export.sh` to package it for upload
+Once complete, you can run `build.sh` to build the container, and `export.sh` to package it for upload.
 The original source code for the algorithm container was generated with evalutils version 0.3.1.
