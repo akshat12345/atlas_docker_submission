@@ -22,9 +22,9 @@ class Seg():
         file_list = [os.path.join(inp_path, f) for f in file_list]
         for fil in file_list:
             dat, _ = medpy.io.load(fil)  # dat is a numpy array
-            dat = dat.reshape(1, 1, *dat.shape)  # reshape to Pytorch standard
-            # Convert 'dat' to Tensor, or as appropriate for your model
-
+            im_shape = dat.shape
+            dat = dat.reshape(1, 1, *im_shape)  # reshape to Pytorch standard
+            # Convert 'dat' to Tensor, or as appropriate for your model.
             ###########
             ### Replace this section with the call to your code.
             mean_dat = np.mean(dat)
@@ -33,6 +33,7 @@ class Seg():
             ###
             ###########
 
+            dat = dat.reshape(*im_shape)
             out_name = os.path.basename(fil)
             out_filepath = os.path.join(out_path, out_name)
             medpy.io.save(dat, out_filepath)
