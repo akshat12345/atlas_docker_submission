@@ -2,7 +2,7 @@ import os,pathlib
 import cv2 as cv
 import numpy as np
 import nibabel as nib
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from medpy.io import load,save
 from settings import loader_settings
 #import medpy
