@@ -92,29 +92,26 @@ class Seg():
         file_list = os.listdir(inp_path)  # List of files in the input
         file_list = [os.path.join(inp_path, f) for f in file_list]
         
+        print(file_list)
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b2",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+            decoder_use_batchnorm = True,
+            decoder_attention_type  = "scse",
+            in_channels=1,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=1,                      # model output channels (number of classes in your dataset)
+            activation='sigmoid',
+        )
+        model.load_state_dict(torch.load('./u_netplusplus.pth')) #map_location=torch.device('cpu')
+        model.to(device)
+
         for file in file_list:
             dat,hdr = load(file)
             t1_img = nib.load(file)
             data = t1_img.get_fdata()
             print(file.split('/')[-1])
             processed_img_np = preprocessing(data,t1_img.dataobj.inter,t1_img.dataobj.slope)
-
-            model = smp.UnetPlusPlus(
-                encoder_name="efficientnet-b2",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-                encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-                decoder_use_batchnorm = True,
-                decoder_attention_type  = "scse",
-                in_channels=1,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-                classes=1,                      # model output channels (number of classes in your dataset)
-                activation='sigmoid',
-            )
-
-            model.load_state_dict(torch.load('./u_netplusplus.pth'))
-            
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            
-            
-            model.to(device)
 
             y_pred = []
             for cnt in range(0,176,16):
