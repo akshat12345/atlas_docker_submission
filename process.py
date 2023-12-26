@@ -93,7 +93,7 @@ class Seg():
         file_list = [os.path.join(inp_path, f) for f in file_list]
         
         print(file_list)
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cpu")#torch.device("cuda:0" if torch.cuda.is_available() else"cpu")
         model = smp.UnetPlusPlus(
             encoder_name="efficientnet-b2",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
@@ -103,7 +103,7 @@ class Seg():
             classes=1,                      # model output channels (number of classes in your dataset)
             activation='sigmoid',
         )
-        model.load_state_dict(torch.load('./u_netplusplus.pth')) #map_location=torch.device('cpu')
+        model.load_state_dict(torch.load('./u_netplusplus.pth',map_location=torch.device('cpu'))) #map_location=torch.device('cpu')
         model.to(device)
 
         for file in file_list:
