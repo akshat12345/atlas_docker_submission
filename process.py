@@ -49,11 +49,11 @@ def converttovoxel(image,intercept,slope):
     return image
 
 
-def preprocessing(data,intercept,slope):
+def preprocessing(data):
     print(data.shape)
     process_t1 = np.zeros([192,192,189],dtype = np.float32)
     for k in range(data.shape[2]):
-        mrivox = converttovoxel(data[:,:,k],intercept,slope)
+        mrivox = data[:,:,k]
         result_slice,all_zeros = process_slice(mrivox,k)
         if np.count_nonzero(result_slice) != 0:
             mean = np.sum(result_slice)/np.count_nonzero(result_slice)
@@ -113,10 +113,9 @@ class Seg():
             print('before reshaping -> ' , dat.shape)
             dat = dat.reshape(*im_shape)
             print('after reshaping -> ', dat.shape)
-            t1_img = nib.load(file)
             data = dat
             print(file.split('/')[-1])
-            processed_img_np = preprocessing(data,t1_img.dataobj.inter,t1_img.dataobj.slope)
+            processed_img_np = preprocessing(data)
 
             y_pred = []
             for cnt in range(0,176,16):
