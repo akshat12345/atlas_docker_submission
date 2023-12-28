@@ -31,6 +31,7 @@ def process_slice(img,k):
     
     if ((np.count_nonzero(original_copy) <= threshold_begin and k <= 20) or (np.count_nonzero(original_copy) <= threshold_end and k >= 160)):
         result_slice = temp
+        
         all_zeros = True
     else:
         result_slice = original
@@ -71,7 +72,6 @@ def preprocessing(data,intercept,slope):
     process_t1 = np.expand_dims(process_t1,0)
     process_t1 = np.moveaxis(process_t1, 3,0)
     print(process_t1.shape)
-    
     return process_t1
 
 class Seg():
@@ -96,7 +96,7 @@ class Seg():
         device = torch.device("cpu")#torch.device("cuda:0" if torch.cuda.is_available() else"cpu")
         model = smp.UnetPlusPlus(
             encoder_name="efficientnet-b2",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+            encoder_weights=None,     # use `imagenet` pre-trained weights for encoder initialization
             decoder_use_batchnorm = True,
             decoder_attention_type  = "scse",
             in_channels=1,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
@@ -108,8 +108,13 @@ class Seg():
 
         for file in file_list:
             dat,hdr = load(file)
+            im_shape = dat.shape
+            print(im_shape)#_______________________
+            print('before reshaping -> ' , dat.shape)
+            dat = dat.reshape(*im_shape)
+            print('after reshaping -> ', dat.shape)
             t1_img = nib.load(file)
-            data = t1_img.get_fdata()
+            data = dat
             print(file.split('/')[-1])
             processed_img_np = preprocessing(data,t1_img.dataobj.inter,t1_img.dataobj.slope)
 
@@ -137,15 +142,20 @@ class Seg():
                 final_ans[:,:,j] = reshape_slice
             
             final_ans_thresh = np.zeros([197,233,189],dtype = np.float32)
-            final_ans_thresh[final_ans>thresh] = 1.0
-            final_ans_thresh[final_ans<=thresh] = 0.0
             
+            final_ans_thresh[final_ans>thresh] = 1.0
+
+            final_ans_thresh[final_ans<=thresh] = 0.0
+            dat=final_ans_thresh
+            print('before reshaping -> ' , dat.shape)
+            dat = dat.reshape(*im_shape) 
+            print('after reshaping -> ',dat.shape)
+            print(os.path.basename(file))
             out_name = os.path.basename(file)
             out_filepath = os.path.join(out_path, out_name)
             print(f'=== saving {out_filepath} from {file} ===')
-            save(final_ans_thresh, out_filepath, hdr=hdr)
+            save(dat, out_filepath, hdr=hdr)
             print("Done")
-
         return 
 
 
