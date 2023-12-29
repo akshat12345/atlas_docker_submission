@@ -118,16 +118,20 @@ class Seg():
             processed_img_np = preprocessing(data)
 
             y_pred = []
-            for cnt in range(0,176,16):
-                x = processed_img_np[cnt:cnt+16,:,:,:]
+            for cnt in range(0,189,1):
+                x = processed_img_np[cnt,:,:,:]
+                x = np.expand_dims(x,0)
                 #print(x.shape)
-                x = torch.Tensor(x)
-                x = x.to(device)
-                with torch.set_grad_enabled(False):
-                    pred = model(x).float().cpu().numpy()
+                if np.count_nonzero(x) != 0:
+                    x = torch.Tensor(x)
+                    x = x.to(device)
+                    with torch.set_grad_enabled(False):
+                        pred = model(x).float().cpu().numpy()
+                else:
+                    pred = np.zeros(x.shape,dtype = np.float32)
                 y_pred.extend(pred)
             
-            y_pred.extend(np.zeros([13,1,192,192],dtype = np.float32))
+            #y_pred.extend(np.zeros([13,1,192,192],dtype = np.float32))
             y_pred = np.array(y_pred)
             y_pred = np.squeeze(y_pred, axis=1)
             y_pred = np.transpose(y_pred, (1, 2, 0))
